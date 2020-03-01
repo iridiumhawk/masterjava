@@ -1,5 +1,6 @@
 package ru.javaops.masterjava.matrix;
 
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -10,7 +11,7 @@ import java.util.concurrent.Executors;
  */
 public class MainMatrix {
     private static final int MATRIX_SIZE = 1000;
-    private static final int THREAD_NUMBER = 10;
+    static final int THREAD_NUMBER = 10;
 
     private final static ExecutorService executor = Executors.newFixedThreadPool(MainMatrix.THREAD_NUMBER);
 
@@ -30,13 +31,16 @@ public class MainMatrix {
             singleThreadSum += duration;
 
             start = System.currentTimeMillis();
-            final int[][] concurrentMatrixC = MatrixUtil.concurrentMultiply(matrixA, matrixB, executor);
+            final int[][] concurrentMatrixC =
+            MatrixUtil.concurrentMultiply(matrixA, matrixB, executor);
             duration = (System.currentTimeMillis() - start) / 1000.;
             out("Concurrent thread time, sec: %.3f", duration);
             concurrentThreadSum += duration;
 
             if (!MatrixUtil.compare(matrixC, concurrentMatrixC)) {
                 System.err.println("Comparison failed");
+//                printMatrix(matrixC, "matrixC");
+//                printMatrix(concurrentMatrixC, "concurrentMatrixC");
                 break;
             }
             count++;
@@ -44,6 +48,17 @@ public class MainMatrix {
         executor.shutdown();
         out("\nAverage single thread time, sec: %.3f", singleThreadSum / 5.);
         out("Average concurrent thread time, sec: %.3f", concurrentThreadSum / 5.);
+    }
+
+    private static void printMatrix(int[][] matrix, String name) {
+        StringBuilder line = new StringBuilder();
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix.length; j++) {
+                line.append("[").append(matrix[i][j]).append("]");
+            }
+            line.append("\n");
+        }
+        System.out.println(name + "\n" + line);
     }
 
     private static void out(String format, double ms) {
